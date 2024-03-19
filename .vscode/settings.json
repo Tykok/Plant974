@@ -1,0 +1,25 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.autoIndent": "none",
+  "editor.formatOnSaveMode": "file",
+  "editor.formatOnSave": true,
+  "editorconfig.generateAuto": false,
+  "prettier.useEditorConfig": false,
+  "editor.formatOnPaste": true,
+  "eslint.debug": true,
+  "js/ts.implicitProjectConfig.module": "ES2020",
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "127.0.0.1",
+      "port": 2345,
+      "driver": "PostgreSQL",
+      "name": "Docker Weebz",
+      "group": "Docker",
+      "database": "weebz",
+      "username": "docker"
+    }
+  ]
+}
