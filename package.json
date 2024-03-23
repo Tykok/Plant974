@@ -1,17 +1,22 @@
 {
   "scripts": {
-    "move:ressources": "rm -rf dist/src/ressources/ && cp -r src/ressources dist/src/ressources",
-    "build": "yarn run move:ressources && tsc",
+    "prestart": "yarn run build",
+    "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "node dist/src/main.js"
+    "start": "node dist/src/main.js",
+    "prepare": "ts-patch install -s"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.6",
     "@types/node": "^20.11.30",
     "@types/pdf-parse": "^1.1.4",
+    "ts-patch": "^3.1.2",
     "typescript": "^5.4.2",
     "typescript-transform-paths": "^3.4.7"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "jsdom": "^24.0.0",
     "pdf-parse": "^1.1.1",
     "pdf.js-extract": "^0.2.1"
   }
