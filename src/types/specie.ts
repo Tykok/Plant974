@@ -1,17 +1,18 @@
-type FixedArray<T, Length extends number> = [T, ...T[]] & { length: Length }
-
 type Specie = {
   name: string
   family: string
-  synonyms: string[]
-  commonNames: string[]
+
+  // FIXME Maybe change it to []
+  synonyms: string
+  // FIXME Maybe change it to []
+  commonNames: string
   pictureUrls: string[]
   description: Description
   multiplication?: Multiplication
 
   //Phenology
-  flowerings?: FixedArray<FloweringPeriod, 12>
-  harvesteds?: FixedArray<HarvestedPeriod, 12>
+  flowerings: Map<Months, boolean>
+  harvesteds: Map<Months, boolean>
 
   // Breeding
   survey?: Period
@@ -19,11 +20,8 @@ type Specie = {
   breeding?: Period
 }
 
-type FloweringPeriod = { [key in Months]: boolean }
-type HarvestedPeriod = { [key in Months]: boolean }
-
 type Period = {
-  startAt: number
+  month: number
   endAt: number
 }
 
@@ -66,4 +64,4 @@ type Multiplication = {
 }
 
 export default Specie
-export { Description, Multiplication }
+export { Description, Multiplication, Months }

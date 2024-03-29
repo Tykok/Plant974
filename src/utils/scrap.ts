@@ -1,5 +1,5 @@
 import { NoContentException } from '@/exceptions/FetchException'
-import { Description, Multiplication } from '@/types/specie'
+import Specie, { Description, Multiplication } from '@/types/specie'
 import { JSDOM } from 'jsdom'
 
 /**
@@ -35,14 +35,16 @@ const getSpeciePageContent = async (url: string): Promise<string> => {
 /**
  * Format and clean the content of a specie page and return it as a Specie object
  */
-const getSpecie = (content: string) => {
+const getSpecie = (content: string): Pick<Specie, 'name' | 'family' | 'synonyms' | 'commonNames' | 'description' | 'multiplication'> => {
   const dom = new JSDOM(content).window.document.querySelector('#contenu')!
-  const name = cleantext(dom.querySelector('h1')?.textContent?.trim())
-  const family = cleantext(dom.querySelector('h2')?.nextSibling?.textContent?.trim())
-  const synonyms = cleantext(dom.querySelector('.synonymes')?.textContent?.trim())
-  const commonNames = cleantext(dom.querySelector('.nom_commun')?.textContent?.trim())
-  const description = descriptionCleaner(dom.querySelector('.description')?.textContent?.trim()!)
-  const multiplication = multiplicationCleaner(dom.querySelector('.multiplication')?.textContent?.trim()!)
+  const name = cleantext(dom.querySelector('h1')?.textContent?.trim())!
+  const family = cleantext(dom.querySelector('h2')?.nextSibling?.textContent?.trim())!
+  const synonyms = cleantext(dom.querySelector('.synonymes')?.textContent?.trim())!
+  const commonNames = cleantext(dom.querySelector('.nom_commun')?.textContent?.trim())!
+  const description = descriptionCleaner(dom.querySelector('.description')?.textContent?.trim()!)!
+  const multiplication = multiplicationCleaner(dom.querySelector('.multiplication')?.textContent?.trim()!)!
+
+  // TODO Call methods to get Picture details for pheneology add it to the specie object
 
   const specie = {
     name,
@@ -52,7 +54,7 @@ const getSpecie = (content: string) => {
     description,
     multiplication
   }
-  console.log(specie)
+  return specie
 }
 
 const descriptionCleaner = (text: string): Description => {

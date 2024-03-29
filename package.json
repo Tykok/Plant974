@@ -4,9 +4,11 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "start": "node dist/src/main.js",
-    "prepare": "ts-patch install -s"
+    "prepare": "ts-patch install -s",
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts"
   },
   "devDependencies": {
+    "@types/jimp": "^0.2.28",
     "@types/jsdom": "^21.1.6",
     "@types/node": "^20.11.30",
     "@types/pdf-parse": "^1.1.4",
@@ -16,6 +18,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
+    "jimp": "^0.22.12",
     "jsdom": "^24.0.0"
   }
 }
