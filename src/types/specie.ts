@@ -15,14 +15,9 @@ type Specie = {
   harvesteds: Map<Months, boolean>
 
   // Breeding
-  survey?: Period
-  transplant?: Period
-  breeding?: Period
-}
-
-type Period = {
-  month: number
-  endAt: number
+  survey?: Map<Number, boolean>
+  transplant?: Map<Number, boolean>
+  breeding?: Map<Number, boolean>
 }
 
 enum Months {

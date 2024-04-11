@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { getSpecie, getSpeciePageContent, getSpeciesLinks } from './utils/scrap'
 import Specie from './types/specie'
-import { getPheneology, pictureScrap } from './utils/pictureScrap'
+import { getBreeding, getPheneology, pictureScrap } from './utils/pictureScrap'
 
 const Okmain = async () => {
   const specieUrl = await getSpeciesLinks()
@@ -19,9 +19,9 @@ const Okmain = async () => {
 }
 
 const main = async () => {
-  const croppedPicture = await pictureScrap('./test_picture.jpg')
-  const pheneology = await getPheneology(croppedPicture)
-  console.log(pheneology)
+  const croppedPicture = await pictureScrap('./results/breeding/original.jpg')
+  const breeding = await getBreeding(croppedPicture)
+  console.log(breeding)
 }
 
 main()
