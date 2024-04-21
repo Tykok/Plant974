@@ -3,6 +3,8 @@ import Specie, { Description, Multiplication } from '@/types/specie'
 import { JSDOM } from 'jsdom'
 import { getBreeding, getPheneology } from './pictureScrap'
 
+// TODO All functions who clean texts should return an array of strings with a substring at any point (.)
+
 /**
  * Scrap all Species links in the main pages and return and array of links
  */
@@ -50,8 +52,14 @@ const getSpecie = async (content: string): Promise<Specie> => {
   const breedingUrl = getUrl(dom, '.elevage', '.chrono')
   const breeding = await getBreeding(breedingUrl)
 
-  // TODO Need to add the scrap of the URLs pictures
   const pictureUrls: string[] = []
+  const picturesSection = dom.querySelector('.section')?.querySelector('ul')
+  picturesSection?.querySelectorAll('li').forEach((li: Element) => {
+    const pictureUrl = li.querySelector('a')?.href
+    if (pictureUrl) {
+      pictureUrls.push(`${process.env.WEBSITE_BASE_URL}/${pictureUrl.substring(6)}`)
+    }
+  })
 
   const specie = {
     name,
