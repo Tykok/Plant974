@@ -1,6 +1,7 @@
 import { NoContentException } from '@/exceptions/FetchException'
 import Specie, { Description, Multiplication } from '@/types/specie'
 import { JSDOM } from 'jsdom'
+import { getBreeding, getPheneology } from './pictureScrap'
 
 /**
  * Scrap all Species links in the main pages and return and array of links
@@ -35,7 +36,7 @@ const getSpeciePageContent = async (url: string): Promise<string> => {
 /**
  * Format and clean the content of a specie page and return it as a Specie object
  */
-const getSpecie = (content: string): Pick<Specie, 'name' | 'family' | 'synonyms' | 'commonNames' | 'description' | 'multiplication'> => {
+const getSpecie = async (content: string): Promise<Specie> => {
   const dom = new JSDOM(content).window.document.querySelector('#contenu')!
   const name = cleantext(dom.querySelector('h1')?.textContent?.trim())!
   const family = cleantext(dom.querySelector('h2')?.nextSibling?.textContent?.trim())!
@@ -44,7 +45,13 @@ const getSpecie = (content: string): Pick<Specie, 'name' | 'family' | 'synonyms'
   const description = descriptionCleaner(dom.querySelector('.description')?.textContent?.trim()!)!
   const multiplication = multiplicationCleaner(dom.querySelector('.multiplication')?.textContent?.trim()!)!
 
-  // TODO Call methods to get Picture details for pheneology add it to the specie object
+  const pheneologieUrl = getUrl(dom, '.phenologie', '.pheno')
+  const pheneology = await getPheneology(pheneologieUrl)
+  const breedingUrl = getUrl(dom, '.elevage', '.chrono')
+  const breeding = await getBreeding(breedingUrl)
+
+  // TODO Need to add the scrap of the URLs pictures
+  const pictureUrls: string[] = []
 
   const specie = {
     name,
@@ -52,9 +59,25 @@ const getSpecie = (content: string): Pick<Specie, 'name' | 'family' | 'synonyms'
     synonyms,
     commonNames,
     description,
-    multiplication
+    multiplication,
+    ...breeding,
+    ...pheneology,
+    pictureUrls
   }
   return specie
+}
+
+const getUrl = (page: Element, parentClass: string, childClasses: string) => {
+  const phenoDivs = page.querySelector(parentClass)?.querySelectorAll(childClasses)
+  let url = ''
+  phenoDivs?.forEach((pheno: Element) => {
+    // Check if the element contains a a href url
+    const href = pheno.querySelector('a')?.href
+    if (href) {
+      url = href
+    }
+  })
+  return `${process.env.WEBSITE_BASE_URL}/${url.substring(6)}`
 }
 
 const descriptionCleaner = (text: string): Description => {
