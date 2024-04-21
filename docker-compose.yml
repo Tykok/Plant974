@@ -1,0 +1,33 @@
+version: '3.9'
+services:
+  nodejs:
+    image: node
+    container_name: nodejs-scrap
+    working_dir: /app
+    depends_on:
+      - redis
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:3000"
+    command: 
+      - bash 
+      - -c
+      - |
+        npm install
+        npm start
+
+  redis:
+    image: redis
+    container_name: redis-plant
+    ports:
+      - "6379:6379"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana-plant
+    depends_on:
+      - redis
+      - nodejs
+    ports:
+      - "3001:3000"
