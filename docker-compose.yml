@@ -31,3 +31,8 @@ services:
       - nodejs
     ports:
       - "3001:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      
+volumes:
+  grafana-storage: {}

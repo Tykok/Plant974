@@ -1,5 +1,8 @@
 import Specie, { Months } from '@/types/specie'
 import Jimp from 'jimp'
+import { isTest } from './process'
+
+// TODO Maybe use a simple function who detect if the color of the pixel is not white
 
 const fisrtColumnPheneology = 80
 const celluleWidthPheneology = 22
@@ -16,7 +19,6 @@ const getBreeding = async (url: string): Promise<Pick<Specie, 'survey' | 'transp
 
   const picture = await Jimp.read(url).then(picture => {
     const croppedPicture = picture.crop(firstColumnBreeding, 0, picture.getWidth() - firstColumnBreeding, picture.getHeight())
-    croppedPicture.write('results/breeding/months.jpg')
     return croppedPicture
   })
 
@@ -24,28 +26,21 @@ const getBreeding = async (url: string): Promise<Pick<Specie, 'survey' | 'transp
   let columnIndex = 0
   do {
     try {
-      // FIXME Add NodeEnv to write OR NOT the pictures
       const newCroppedPicture = await Jimp.read(croppedPicture).then(picture => {
         // Check de la couleur de la ligne 2
         const secondLineColor = getHexColor(picture.getPixelColor(5, celluleHeightBreeding + 5))
-        picture.setPixelColor(Jimp.cssColorToHex('#2596be'), 5, celluleHeightBreeding + 5)
         surveys.set(columnIndex, isYellow(secondLineColor.r, secondLineColor.g, secondLineColor.b))
 
         // Check de la couleur de la ligne 3
         const thridLineColor = getHexColor(picture.getPixelColor(5, (celluleHeightBreeding + 5) * 2))
-        picture.setPixelColor(Jimp.cssColorToHex('#2596be'), 5, (celluleHeightBreeding + 5) * 2)
         transplants.set(columnIndex, isBrown(thridLineColor.r, thridLineColor.g, thridLineColor.b))
 
         // Check de la couleur de la ligne 4
         const fourthLineColor = getHexColor(picture.getPixelColor(5, (celluleHeightBreeding + 1) * 3))
-        picture.setPixelColor(Jimp.cssColorToHex('#2596be'), 5, (celluleHeightBreeding + 1) * 3)
         breedings.set(columnIndex, fourthLineColor.r >= 100 && fourthLineColor.g <= 100 && fourthLineColor.b <= 25)
-
-        picture.write(`results/breeding/${columnIndex}_coloredPixel.jpg`)
 
         // Crop the first column when all checks are done
         picture.crop(celluleWidthBreeding, 0, picture.getWidth() - celluleWidthBreeding, picture.getHeight())
-        picture.write(`results/breeding/${columnIndex}.jpg`)
 
         return picture
       })
@@ -65,28 +60,22 @@ const getPheneology = async (url: string): Promise<Pick<Specie, 'flowerings' | '
 
   const picture = await Jimp.read(url).then(picture => {
     const croppedPicture = picture.crop(fisrtColumnPheneology, 0, picture.getWidth() - fisrtColumnPheneology, picture.getHeight())
-    croppedPicture.write('results/breeding/months.jpg')
     return croppedPicture
   })
 
   let croppedPicture = picture
   for (let i = 0; i <= 11; i++) {
-    // FIXME Add NodeEnv to write OR NOT the pictures
     const newCroppedPicture = await Jimp.read(croppedPicture).then(picture => {
       // Check de la couleur de la ligne 2
       const secondLineColor = getHexColor(picture.getPixelColor(5, celluleHeightPheneology + 5))
-      picture.setPixelColor(Jimp.cssColorToHex('#2596be'), 5, celluleHeightPheneology + 5)
       flowerings.set(i, isYellow(secondLineColor.r, secondLineColor.g, secondLineColor.b))
 
       // Check de la couleur de la ligne 3
       const rgbPixel = getHexColor(picture.getPixelColor(5, (celluleHeightPheneology + 5) * 2))
-      picture.setPixelColor(Jimp.cssColorToHex('#2596be'), 5, (celluleHeightPheneology + 5) * 2)
       harvesteds.set(i, isBrown(rgbPixel.r, rgbPixel.g, rgbPixel.b))
-      picture.write(`results/${i}_coloredPixel.jpg`)
 
       // Crop the first column when all checks are done
       picture.crop(celluleWidthPheneology, 0, picture.getWidth() - celluleWidthPheneology, picture.getHeight())
-      picture.write(`results/${i}.jpg`)
 
       return picture
     })

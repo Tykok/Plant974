@@ -23,7 +23,7 @@ const getSpeciesLinks = async (): Promise<string[]> =>
       speciesLinks.forEach((link: HTMLAnchorElement) => {
         if (link.href.includes('especes')) cleanUrls.push(link.href)
       })
-      return cleanUrls
+      return cleanUrls.filter((url, index, self) => self.indexOf(url) === index)
     })
 
 /**
@@ -31,48 +31,54 @@ const getSpeciesLinks = async (): Promise<string[]> =>
  */
 const getSpeciePageContent = async (url: string): Promise<string> => {
   const specieUrl = `${process.env.WEBSITE_BASE_URL}/${url}`
-  console.log(specieUrl)
   return JSDOM.fromURL(specieUrl).then((dom: JSDOM) => dom.serialize())
 }
 
 /**
  * Format and clean the content of a specie page and return it as a Specie object
  */
-const getSpecie = async (content: string): Promise<Specie> => {
+const getSpecie = async (content: string): Promise<Specie | null> => {
   const dom = new JSDOM(content).window.document.querySelector('#contenu')!
   const name = cleantext(dom.querySelector('h1')?.textContent?.trim())!
-  const family = cleantext(dom.querySelector('h2')?.nextSibling?.textContent?.trim())!
-  const synonyms = cleantext(dom.querySelector('.synonymes')?.textContent?.trim())!
-  const commonNames = cleantext(dom.querySelector('.nom_commun')?.textContent?.trim())!
-  const description = descriptionCleaner(dom.querySelector('.description')?.textContent?.trim()!)!
-  const multiplication = multiplicationCleaner(dom.querySelector('.multiplication')?.textContent?.trim()!)!
+  try {
+    const family = cleantext(dom.querySelector('h2')?.nextSibling?.textContent?.trim())!
+    const synonyms = cleantext(dom.querySelector('.synonymes')?.textContent?.trim())!
+    const commonNames = cleantext(dom.querySelector('.nom_commun')?.textContent?.trim())!
+    const description = descriptionCleaner(dom.querySelector('.description')?.textContent?.trim()!)!
+    const multiplication = multiplicationCleaner(dom.querySelector('.multiplication')?.textContent?.trim()!)!
 
-  const pheneologieUrl = getUrl(dom, '.phenologie', '.pheno')
-  const pheneology = await getPheneology(pheneologieUrl)
-  const breedingUrl = getUrl(dom, '.elevage', '.chrono')
-  const breeding = await getBreeding(breedingUrl)
+    const pheneologieUrl = getUrl(dom, '.phenologie', '.pheno')
+    const pheneology = !!pheneologieUrl ? await getPheneology(pheneologieUrl) : { flowerings: new Map(), harvesteds: new Map() }
+    const breedingUrl = getUrl(dom, '.elevage', '.chrono')
+    const breeding = !!breedingUrl ? await getBreeding(breedingUrl) : { survey: new Map(), transplant: new Map(), breeding: new Map() }
 
-  const pictureUrls: string[] = []
-  const picturesSection = dom.querySelector('.section')?.querySelector('ul')
-  picturesSection?.querySelectorAll('li').forEach((li: Element) => {
-    const pictureUrl = li.querySelector('a')?.href
-    if (pictureUrl) {
-      pictureUrls.push(`${process.env.WEBSITE_BASE_URL}/${pictureUrl.substring(6)}`)
+    const pictureUrls: string[] = []
+    const picturesSection = dom.querySelector('.section')?.querySelector('ul')
+    picturesSection?.querySelectorAll('li').forEach((li: Element) => {
+      const pictureUrl = li.querySelector('a')?.href
+      if (pictureUrl) {
+        pictureUrls.push(`${process.env.WEBSITE_BASE_URL}/${pictureUrl.substring(6)}`)
+      }
+    })
+
+    const specie = {
+      name,
+      family,
+      synonyms,
+      commonNames,
+      description,
+      multiplication,
+      ...breeding,
+      ...pheneology,
+      pictureUrls
     }
-  })
-
-  const specie = {
-    name,
-    family,
-    synonyms,
-    commonNames,
-    description,
-    multiplication,
-    ...breeding,
-    ...pheneology,
-    pictureUrls
+    console.log(`${name} ✅`)
+    return specie
+  } catch (e) {
+    console.log(e)
+    console.log(`${name} ❌`)
+    return null
   }
-  return specie
 }
 
 const getUrl = (page: Element, parentClass: string, childClasses: string) => {
@@ -85,7 +91,11 @@ const getUrl = (page: Element, parentClass: string, childClasses: string) => {
       url = href
     }
   })
-  return `${process.env.WEBSITE_BASE_URL}/${url.substring(6)}`
+  if (url.length > 0) {
+    return `${process.env.WEBSITE_BASE_URL}/${url.substring(6)}`
+  } else {
+    return null
+  }
 }
 
 const descriptionCleaner = (text: string): Description => {
@@ -133,7 +143,7 @@ const multiplicationCleaner = (text: string): Multiplication => {
   }
 }
 
-const matchAndClean = (match: RegExp, text: string) => cleantext(text.match(match)?.at(1))
+const matchAndClean = (match: RegExp, text: string) => cleantext(text?.match(match)?.at(1))
 
 const cleantext = (text?: string) =>
   text
