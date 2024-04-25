@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { getSpecie, getSpeciePageContent, getSpeciesLinks } from './utils/scrap'
 import Specie from './types/specie'
-import { saveSpecie } from './services/redisClient'
+import { barChartFamily, pieChartProtectedSpecie, saveSpecie } from './services/redisClient'
 
 const main = async () => {
   const specieUrl = await getSpeciesLinks()
@@ -13,6 +13,8 @@ const main = async () => {
     if (specie) species.push(specie)
   }
   saveSpecie(species)
+  pieChartProtectedSpecie(species)
+  barChartFamily(species)
 }
 
 main()
