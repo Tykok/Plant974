@@ -42,6 +42,14 @@ A second to display the different families grouped together.
 
 To launch the project, all you need is docker.
 
+First, add this to your `.env` file:
+
+```bash
+NODE_ENV="development"
+WEBSITE_BASE_URL="https://arbres-reunion.cirad.fr"
+REDIS_URL="redis://:@redis:6379/0"
+```
+
 Then run this command:
 
 ```bash
